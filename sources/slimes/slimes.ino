@@ -1,5 +1,8 @@
 #include <Gamebuino-Meta.h>
 
+#define FPS 30
+#define FILE_NAME_BUFFER_SIZE     30
+
 #define TILE_SIZE                 8
 #define TILE_WIDTH                TILE_SIZE
 #define TILE_HEIGHT               TILE_SIZE
@@ -8,7 +11,6 @@
 #define MAX_EVENTS_AMOUNT         10
 #define MAX_OBJECTS_AMOUNT        10
 #define LENGTH_TABLE_SIZE         3
-#define FILE_NAME_BUFFER_SIZE     30
 
 #define WARP    0
 #define MESSAGE 1
@@ -185,7 +187,7 @@ void player_::update() {
 
 void setup() {
   gb.begin();
-  gb.setFrameRate(50);
+  gb.setFrameRate(FPS);
   player.x = 7;
   player.y = 4;
   player.direction = DOWN;
