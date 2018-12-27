@@ -1,2 +1,1 @@
-img_converter "palette.bmp" "player.bmp" "out.txt"
-REM img_converter "palette.bmp" "tiles_light.bmp" "out.txt"
+img_converter "palette.bmp" %1 "out.txt"

@@ -1,10 +1,23 @@
 #include <Gamebuino-Meta.h>
 
-#define TILE_SIZE             8
-#define TILE_WIDTH            TILE_SIZE
-#define TILE_HEIGHT           TILE_SIZE
-#define MAP_BUFFER_SIZE       100*100
-#define FILE_NAME_BUFFER_SIZE 30
+#define TILE_SIZE                 8
+#define TILE_WIDTH                TILE_SIZE
+#define TILE_HEIGHT               TILE_SIZE
+#define TILE_ANIMATION_FREQUENCY  500 // ms
+#define MAP_BUFFER_SIZE           50*50
+#define MAX_EVENTS_AMOUNT         10
+#define MAX_OBJECTS_AMOUNT        10
+#define LENGTH_TABLE_SIZE         3
+#define FILE_NAME_BUFFER_SIZE     30
+
+#define WARP    0
+#define MESSAGE 1
+#define SCRIPT  2
+
+#define RIGHT 0
+#define UP    1
+#define LEFT  2
+#define DOWN  3
 
 #include "sprites.h"
 
@@ -12,6 +25,8 @@ File file;
 Image tile_set;
 int music = -1;
 uint8_t map_buffer[MAP_BUFFER_SIZE];
+uint8_t events_buffer[MAX_EVENTS_AMOUNT * LENGTH_TABLE_SIZE]; // x, y, id
+uint8_t objects_buffer[MAX_OBJECTS_AMOUNT * LENGTH_TABLE_SIZE]; // x, y, id
 char file_name[FILE_NAME_BUFFER_SIZE];
 
 class camera_ {
@@ -23,7 +38,8 @@ camera_ camera;
 
 class map_ {
   public:
-    uint8_t width, height, tile_blocking_limit, tile_set_id, tile_set_tiles_amount, music_id, *data;
+    uint8_t id, width, height, tileset_id, tiles_amount, tiles_block_id, tiles_anim_start_id, tiles_anim_end_id, music_id = -1, *data, events_amount, *events, objects_amount, *objects;
+    uint32_t events_position, objects_position;
     void draw();
 };
 map_ current_map;
@@ -50,11 +66,11 @@ void map_::draw() {
       int8_t tile_x = camera.x / TILE_WIDTH + x;
       int8_t tile_y = camera.y / TILE_HEIGHT + y;
       //if (tile_x >= 0 && tile_x < width && tile_y >= 0 && tile_y < height) {
-      //tile_set.setFrame(data[tile_y * width + tile_x]);
       byte tile_id = data[tile_y * width + tile_x];
+      tile_id += (tile_id >= tiles_anim_start_id && tile_id <= tiles_anim_end_id) * millis() / TILE_ANIMATION_FREQUENCY % 2;
       tile_x = x * TILE_WIDTH - camera.x % TILE_WIDTH;
       tile_y = y * TILE_HEIGHT - camera.y % TILE_HEIGHT;
-      gb.display.drawImage(tile_x, tile_y, tile_set, 0, tile_id*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
+      gb.display.drawImage(tile_x, tile_y, tile_set, 0, tile_id * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
       //}
     }
   }
@@ -65,6 +81,53 @@ void player_::draw() {
   gb.display.drawImage(x * TILE_WIDTH - camera.x + x_offset, y * TILE_HEIGHT - camera.y + y_offset, player_sprite_set);
 }
 
+void load_map(uint8_t map_id) {
+  uint8_t last_music = current_map.music_id;
+  String("maps/" + String(map_id) + ".map").toCharArray(file_name, FILE_NAME_BUFFER_SIZE);
+  file = SD.open(file_name, O_RDWR);
+  current_map.id = map_id;
+  current_map.width = file.read();
+  current_map.height = file.read();
+  current_map.tileset_id = file.read();
+  current_map.tiles_amount = file.read();
+  current_map.tiles_block_id = file.read();
+  current_map.tiles_anim_start_id = file.read();
+  current_map.tiles_anim_end_id = file.read();
+  current_map.music_id = file.read();
+  file.read(map_buffer, current_map.width * current_map.height);
+  current_map.data = map_buffer;
+  current_map.events_amount = file.read();
+  if (current_map.events_amount > 0) {
+    file.read(events_buffer, current_map.events_amount * LENGTH_TABLE_SIZE);
+    current_map.events = events_buffer;
+    current_map.events_position = file.position();
+    seek_table(current_map.events_amount);
+  }
+  current_map.objects_amount = file.read();
+  if (current_map.objects_amount > 0) {
+    file.read(objects_buffer, current_map.objects_amount * LENGTH_TABLE_SIZE);
+    current_map.objects = objects_buffer;
+    current_map.objects_position = file.position();
+  }
+  file.close();
+  String("sprites/" + String(current_map.tileset_id) + ".bmp").toCharArray(file_name, FILE_NAME_BUFFER_SIZE);
+  tile_set.init(TILE_WIDTH, TILE_HEIGHT * current_map.tiles_amount, file_name, 0);
+  if(last_music != current_map.music_id){
+    // todo : add fading
+    String("musics/" + String(current_map.music_id) + ".wav").toCharArray(file_name, FILE_NAME_BUFFER_SIZE);
+    gb.sound.stop(music);
+    music = gb.sound.play(file_name, true);
+  }
+}
+
+void seek_table(uint8_t n) {
+  for (byte i = 0; i < n; i++) {
+    uint16_t length = file.read() << 8;
+    length |= file.read();
+    file.seek(file.position() + length);
+  }
+}
+
 void player_::update() {
   if (!is_moving) {
     x_velocity = y_velocity = 0;
@@ -73,7 +136,7 @@ void player_::update() {
     if (!x_velocity != !y_velocity) {
       direction = (1 + x_velocity) * (x_velocity != 0);
       direction = (2 + y_velocity) * (y_velocity != 0 || direction == 0);
-      if (current_map.data[(y + y_velocity) * current_map.width + x + x_velocity] < current_map.tile_blocking_limit) is_moving = true;
+      if (current_map.data[(y + y_velocity) * current_map.width + x + x_velocity] < current_map.tiles_block_id) is_moving = true;
     }
   } else {
     scrolling++;
@@ -86,6 +149,36 @@ void player_::update() {
       is_moving = false;
       x += x_velocity;
       y += y_velocity;
+
+      // check for walk-triggered events
+      for (byte i = 0; i <= current_map.events_amount; i++) {
+        if (x == current_map.events[i * LENGTH_TABLE_SIZE] & y == current_map.events[i * LENGTH_TABLE_SIZE + 1]) {
+          String("maps/" + String(current_map.id) + ".map").toCharArray(file_name, FILE_NAME_BUFFER_SIZE);
+          file = SD.open(file_name, O_RDWR);
+          file.seek(current_map.events_position);
+          seek_table(current_map.events[i * LENGTH_TABLE_SIZE + 2]);
+          file.seek(file.position()+2); // skip length
+          switch (file.read()) {
+            case WARP:
+              //fade.in
+              player.x = file.read();
+              player.y = file.read();
+              player.direction = file.read();
+              player.animation = 0;
+              player.is_moving = false;
+              load_map(file.read());
+              //fade.out
+              break;
+            default:
+              gb.display.clear();
+              gb.display.setCursor(0, 0);
+              gb.display.println(file.position());
+              delay(10000);
+          }
+          file.close();
+          break;
+        }
+      }
     }
   }
 }
@@ -93,28 +186,15 @@ void player_::update() {
 void setup() {
   gb.begin();
   gb.setFrameRate(50);
-
-  file = SD.open("maps/test.map", O_RDWR);
-  current_map.width = file.read();
-  current_map.height = file.read();
-  current_map.tile_blocking_limit = file.read();
-  current_map.tile_set_id = file.read();
-  current_map.tile_set_tiles_amount = file.read();
-  current_map.music_id = file.read();
-  file.read(map_buffer, current_map.width*current_map.height);
-  current_map.data = map_buffer;
-  file.close();
-
-  player.x = player.y = 4;
-  player.direction = player.animation = 0;
+  player.x = 7;
+  player.y = 4;
+  player.direction = DOWN;
+  player.animation = 0;
   player.is_moving = false;
-  String("sprites/"+String(current_map.tile_set_id)+".bmp").toCharArray(file_name, FILE_NAME_BUFFER_SIZE);
-  tile_set.init(TILE_WIDTH, TILE_HEIGHT*current_map.tile_set_tiles_amount, file_name, 0);
+  load_map(0);
 }
 
 void loop() {
-  String("musics/"+String(current_map.music_id)+".wav").toCharArray(file_name, FILE_NAME_BUFFER_SIZE);
-  music = gb.sound.play(file_name, true);
   while (true) {
     player.update();
     camera.update();

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.2" tiledversion="1.2.1" orientation="orthogonal" renderorder="right-down" width="10" height="10" tilewidth="8" tileheight="8" infinite="0" nextlayerid="2" nextobjectid="1">
+ <tileset firstgid="1" source="../sprites/1.tsx"/>
+ <layer id="1" name="Calque de Tile 1" width="10" height="10">
+  <data encoding="csv">
+12,12,12,12,12,12,12,12,12,12,
+12,22,22,16,19,16,16,19,16,12,
+12,23,22,17,17,17,17,17,17,12,
+12,24,2,2,2,23,2,2,32,12,
+12,2,2,2,2,2,2,2,33,12,
+12,2,2,31,27,29,31,2,2,12,
+12,2,2,31,28,30,31,2,2,12,
+12,25,2,2,2,2,2,2,2,12,
+12,26,2,2,2,2,2,2,2,12,
+12,12,11,11,12,12,12,12,12,12
+</data>
+ </layer>
+</map>
