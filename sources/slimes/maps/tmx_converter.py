@@ -13,6 +13,8 @@ direction = {"RIGHT": 0,
              "LEFT": 2,
              "DOWN": 3}
 
+flag = {"NO_FLAG": 255}
+
 import configparser, os, pip, subprocess, sys
 
 try:
@@ -56,34 +58,55 @@ if "events" in config.sections():
     file.write(int(len(config.items("events"))).to_bytes(1, "big"))
     # events x, y, id
     for i in range(len(config.items("events"))):
-        file.write(int([item[1] for item in config.items("events")][i].split(",")[0]).to_bytes(1, "big"))
+        file.write(int({**flag}.get([item[1] for item in config.items("events")][i].split(",")[0], [item[1] for item in config.items("events")][i].split(",")[0])).to_bytes(1, "big"))
         file.write(int([item[1] for item in config.items("events")][i].split(",")[1]).to_bytes(1, "big"))
+        file.write(int([item[1] for item in config.items("events")][i].split(",")[2]).to_bytes(1, "big"))
         file.write(int([item[0] for item in config.items("events")][i]).to_bytes(1, "big"))
 
-    # data length (2 bytes big endian, should be enough), data/bytecode
+    # data length, data/bytecode
     last_event_length = 0
     for i in range(len(config.items("events"))):
-        file.write(int(len([item[1] for item in config.items("events")][i].split(","))-2).to_bytes(2, "big"))
-        for j in range(len([item[1] for item in config.items("events")][i].split(","))-2):
-            file.write(int({**object_type, **bytecode, **direction}.get([item[1] for item in config.items("events")][i].split(",")[j+2], [item[1] for item in config.items("events")][i].split(",")[j+2])).to_bytes(1, "big"))
+        file.write(int(len([item[1] for item in config.items("events")][i].split(","))-3).to_bytes(1, "big"))
+        for j in range(len([item[1] for item in config.items("events")][i].split(","))-3):
+            file.write(int({**object_type, **bytecode, **direction}.get([item[1] for item in config.items("events")][i].split(",")[j+3], [item[1] for item in config.items("events")][i].split(",")[j+3])).to_bytes(1, "big"))
 else:
     file.write(int(0).to_bytes(1, "big"))
 
 if "objects" in config.sections():
     # amount of objects
     file.write(int(len(config.items("objects"))).to_bytes(1, "big"))
-    # objects x, y, id
+    # objects flag, x, y, id
     for i in range(len(config.items("objects"))):
-        file.write(int([item[1] for item in config.items("objects")][i].split(",")[0]).to_bytes(1, "big"))
+        file.write(int({**flag}.get([item[1] for item in config.items("objects")][i].split(",")[0], [item[1] for item in config.items("objects")][i].split(",")[0])).to_bytes(1, "big"))
         file.write(int([item[1] for item in config.items("objects")][i].split(",")[1]).to_bytes(1, "big"))
+        file.write(int([item[1] for item in config.items("objects")][i].split(",")[2]).to_bytes(1, "big"))
         file.write(int([item[0] for item in config.items("objects")][i]).to_bytes(1, "big"))
 
-    # data length (2 bytes big endian, should be enough), data/bytecode
+    # data length, data/bytecode
     last_event_length = 0
     for i in range(len(config.items("objects"))):
-        file.write(int(len([item[1] for item in config.items("objects")][i].split(","))-2).to_bytes(2, "big"))
-        for j in range(len([item[1] for item in config.items("objects")][i].split(","))-2):
-            file.write(int({**object_type, **bytecode, **direction}.get([item[1] for item in config.items("objects")][i].split(",")[j+2], [item[1] for item in config.items("objects")][i].split(",")[j+2])).to_bytes(1, "big"))
+        file.write(int(len([item[1] for item in config.items("objects")][i].split(","))-3).to_bytes(1, "big"))
+        for j in range(len([item[1] for item in config.items("objects")][i].split(","))-3):
+            file.write(int({**object_type, **bytecode, **direction}.get([item[1] for item in config.items("objects")][i].split(",")[j+3], [item[1] for item in config.items("objects")][i].split(",")[j+3])).to_bytes(1, "big"))
+else:
+    file.write(int(0).to_bytes(1, "big"))
+
+if "npc" in config.sections():
+    # amount of NPCs
+    file.write(int(len(config.items("npc"))).to_bytes(1, "big"))
+    # npc flag, x, y, id
+    for i in range(len(config.items("npc"))):
+        file.write(int({**flag}.get([item[1] for item in config.items("npc")][i].split(",")[0], [item[1] for item in config.items("npc")][i].split(",")[0])).to_bytes(1, "big"))
+        file.write(int([item[1] for item in config.items("npc")][i].split(",")[1]).to_bytes(1, "big"))
+        file.write(int([item[1] for item in config.items("npc")][i].split(",")[2]).to_bytes(1, "big"))
+        file.write(int([item[0] for item in config.items("npc")][i]).to_bytes(1, "big"))
+
+    # data length, data/bytecode
+    last_event_length = 0
+    for i in range(len(config.items("npc"))):
+        file.write(int(len([item[1] for item in config.items("npc")][i].split(","))-3).to_bytes(1, "big"))
+        for j in range(len([item[1] for item in config.items("npc")][i].split(","))-3):
+            file.write(int({**object_type, **bytecode, **direction}.get([item[1] for item in config.items("npc")][i].split(",")[j+3], [item[1] for item in config.items("npc")][i].split(",")[j+3])).to_bytes(1, "big"))
 else:
     file.write(int(0).to_bytes(1, "big"))
 

@@ -10,7 +10,8 @@
 #define MAP_BUFFER_SIZE           50*50
 #define MAX_EVENTS_AMOUNT         10
 #define MAX_OBJECTS_AMOUNT        10
-#define LENGTH_TABLE_SIZE         3
+#define MAX_NPC_AMOUNT            10
+#define LENGTH_TABLE_SIZE         4
 
 #define WARP    0
 #define MESSAGE 1
@@ -21,14 +22,30 @@
 #define LEFT  2
 #define DOWN  3
 
+#define FLAG  0
+#define X     1
+#define Y     2
+#define ID    3
+
+#define NO_FLAG 255
+
+#define OBJECTS_SPRITE_ID 0
+#define OBJECTS_DATA      1
+
+#define NPC_SPRITE_ID 0
+#define NPC_DIRECTION 1
+#define NPC_MOVEMENT  2
+#define NPC_DATA      3
+
 #include "sprites.h"
 
 File file;
-Image tile_set;
+Image tileset;
 int music = -1;
 uint8_t map_buffer[MAP_BUFFER_SIZE];
-uint8_t events_buffer[MAX_EVENTS_AMOUNT * LENGTH_TABLE_SIZE]; // x, y, id
-uint8_t objects_buffer[MAX_OBJECTS_AMOUNT * LENGTH_TABLE_SIZE]; // x, y, id
+uint8_t events_buffer[MAX_EVENTS_AMOUNT * LENGTH_TABLE_SIZE]; // flag, x, y, id
+uint8_t objects_buffer[MAX_OBJECTS_AMOUNT * LENGTH_TABLE_SIZE]; // flag, x, y, id
+uint8_t npc_buffer[MAX_NPC_AMOUNT * LENGTH_TABLE_SIZE]; // flag, x, y, id
 char file_name[FILE_NAME_BUFFER_SIZE];
 
 class camera_ {
@@ -40,8 +57,8 @@ camera_ camera;
 
 class map_ {
   public:
-    uint8_t id, width, height, tileset_id, tiles_amount, tiles_block_id, tiles_anim_start_id, tiles_anim_end_id, music_id = -1, *data, events_amount, *events, objects_amount, *objects;
-    uint32_t events_position, objects_position;
+    uint8_t id, width, height, tileset_id, tiles_amount, tiles_block_id, tiles_anim_start_id, tiles_anim_end_id, music_id = -1, *data, events_amount, *events, objects_amount, *objects, npc_amount, *npc;
+    uint32_t events_position, objects_position, npc_position;
     void draw();
 };
 map_ current_map;
@@ -55,6 +72,12 @@ class player_ {
 };
 player_ player;
 
+void seek_table(uint8_t times) {
+  for (byte i = 0; i < times; i++) {
+    uint8_t length = file.read();
+    file.seek(file.position() + length);
+  }
+}
 void camera_::update() {
   x = player.x * TILE_SIZE - gb.display.width() / 2 + TILE_WIDTH / 2 + player.x_offset;
   x = camera.x * (x > 0) + (current_map.width * TILE_WIDTH - gb.display.width() - x) * (x > current_map.width * TILE_WIDTH - gb.display.width());
@@ -63,16 +86,27 @@ void camera_::update() {
 };
 
 void map_::draw() {
-  for (byte x = 0; x <= gb.display.height() / TILE_WIDTH + 2; x++) { // +2 idk why
-    for (byte y = 0; y <= gb.display.width() / TILE_HEIGHT + 1; y++) {
+  for (byte x = 0; x <= gb.display.width() / TILE_WIDTH + 1; x++) {
+    for (byte y = 0; y <= gb.display.height() / TILE_HEIGHT + 1; y++) {
       int8_t tile_x = camera.x / TILE_WIDTH + x;
       int8_t tile_y = camera.y / TILE_HEIGHT + y;
       //if (tile_x >= 0 && tile_x < width && tile_y >= 0 && tile_y < height) {
       byte tile_id = data[tile_y * width + tile_x];
       tile_id += (tile_id >= tiles_anim_start_id && tile_id <= tiles_anim_end_id) * millis() / TILE_ANIMATION_FREQUENCY % 2;
-      tile_x = x * TILE_WIDTH - camera.x % TILE_WIDTH;
-      tile_y = y * TILE_HEIGHT - camera.y % TILE_HEIGHT;
-      gb.display.drawImage(tile_x, tile_y, tile_set, 0, tile_id * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
+      gb.display.drawImage(x * TILE_WIDTH - camera.x % TILE_WIDTH, y * TILE_HEIGHT - camera.y % TILE_HEIGHT, tileset, 0, tile_id * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
+
+      // check for objects to draw
+      for (byte i = 0; i < current_map.objects_amount; i++) {
+        if (tile_x == current_map.objects[i * LENGTH_TABLE_SIZE + X] && tile_y == current_map.objects[i * LENGTH_TABLE_SIZE + Y]
+        //&& flag(current_map.objects[i * LENGTH_TABLE_SIZE + FLAG]) == FALSE) {
+        ){
+          seek_table(current_map.objects[i * LENGTH_TABLE_SIZE + ID]);
+          file.read(); // skip length
+          objects_sprite_set.setFrame(file.read());
+          gb.display.drawImage(x * TILE_WIDTH - camera.x % TILE_WIDTH, y * TILE_HEIGHT - camera.y % TILE_HEIGHT, objects_sprite_set);
+          break;
+        }
+      }
       //}
     }
   }
@@ -111,22 +145,20 @@ void load_map(uint8_t map_id) {
     current_map.objects = objects_buffer;
     current_map.objects_position = file.position();
   }
+  current_map.npc_amount = file.read();
+  if (current_map.npc_amount > 0) {
+    file.read(npc_buffer, current_map.npc_amount * LENGTH_TABLE_SIZE);
+    current_map.npc = npc_buffer;
+    current_map.npc_position = file.position();
+  }
   file.close();
   String("sprites/" + String(current_map.tileset_id) + ".bmp").toCharArray(file_name, FILE_NAME_BUFFER_SIZE);
-  tile_set.init(TILE_WIDTH, TILE_HEIGHT * current_map.tiles_amount, file_name, 0);
-  if(last_music != current_map.music_id){
+  tileset.init(TILE_WIDTH, TILE_HEIGHT * current_map.tiles_amount, file_name, 0);
+  if (last_music != current_map.music_id) {
     // todo : add fading
     String("musics/" + String(current_map.music_id) + ".wav").toCharArray(file_name, FILE_NAME_BUFFER_SIZE);
     gb.sound.stop(music);
     music = gb.sound.play(file_name, true);
-  }
-}
-
-void seek_table(uint8_t n) {
-  for (byte i = 0; i < n; i++) {
-    uint16_t length = file.read() << 8;
-    length |= file.read();
-    file.seek(file.position() + length);
   }
 }
 
@@ -153,13 +185,13 @@ void player_::update() {
       y += y_velocity;
 
       // check for walk-triggered events
-      for (byte i = 0; i <= current_map.events_amount; i++) {
-        if (x == current_map.events[i * LENGTH_TABLE_SIZE] & y == current_map.events[i * LENGTH_TABLE_SIZE + 1]) {
+      for (byte i = 0; i < current_map.events_amount; i++) {
+        if (x == current_map.events[i * LENGTH_TABLE_SIZE + X] && y == current_map.events[i * LENGTH_TABLE_SIZE + Y]) {
           String("maps/" + String(current_map.id) + ".map").toCharArray(file_name, FILE_NAME_BUFFER_SIZE);
           file = SD.open(file_name, O_RDWR);
           file.seek(current_map.events_position);
-          seek_table(current_map.events[i * LENGTH_TABLE_SIZE + 2]);
-          file.seek(file.position()+2); // skip length
+          seek_table(current_map.events[i * LENGTH_TABLE_SIZE + ID]);
+          file.read(); // skip length
           switch (file.read()) {
             case WARP:
               //fade.in
