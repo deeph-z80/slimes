@@ -226,3 +226,5 @@ const uint8_t npc_sprites[]={
   0xee,0x00,0xe0,0x0e
 };
 Image npc_sprite_set(npc_sprites);
+
+Image tileset;
