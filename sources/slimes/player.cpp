@@ -1,4 +1,5 @@
 #include "camera.h"
+#include "constants.h"
 #include "map.h"
 #include "player.h"
 #include "sprites.h"
@@ -36,7 +37,7 @@ void player_::update() {
           String("maps/" + String(current_map.id) + ".map").toCharArray(file_name, FILE_NAME_BUFFER_SIZE);
           current_map.file = SD.open(file_name, O_RDWR);
           current_map.file.seek(current_map.events_position);
-          current_map.seek_table(current_map.events[i * LENGTH_TABLE_SIZE + ID]);
+          current_map.seek_table(current_map.events[i * LENGTH_TABLE_SIZE + ID_]);
           current_map.file.read(); // skip length
           switch (current_map.file.read()) {
             case WARP:

@@ -1,5 +1,4 @@
 #include <Gamebuino-Meta.h>
-#include "constants.h"
 
 class player_ {
   public:

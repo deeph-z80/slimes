@@ -14,7 +14,7 @@ void setup() {
   player.direction = DOWN;
   player.animation = 0;
   player.is_moving = false;
-  current_map.music = -1;
+  music = -1;
   current_map.load(0);
 }
 

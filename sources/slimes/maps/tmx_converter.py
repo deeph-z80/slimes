@@ -1,9 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-object_type = {"INVISIBLE": 0,
-               "NPC": 1}
-
 bytecode = {"WARP": 0,
             "MESSAGE": 1,
             "SCRIPT": 2}
@@ -68,7 +65,7 @@ if "events" in config.sections():
     for i in range(len(config.items("events"))):
         file.write(int(len([item[1] for item in config.items("events")][i].split(","))-3).to_bytes(1, "big"))
         for j in range(len([item[1] for item in config.items("events")][i].split(","))-3):
-            file.write(int({**object_type, **bytecode, **direction}.get([item[1] for item in config.items("events")][i].split(",")[j+3], [item[1] for item in config.items("events")][i].split(",")[j+3])).to_bytes(1, "big"))
+            file.write(int({**bytecode, **direction}.get([item[1] for item in config.items("events")][i].split(",")[j+3], [item[1] for item in config.items("events")][i].split(",")[j+3])).to_bytes(1, "big"))
 else:
     file.write(int(0).to_bytes(1, "big"))
 
@@ -87,7 +84,7 @@ if "objects" in config.sections():
     for i in range(len(config.items("objects"))):
         file.write(int(len([item[1] for item in config.items("objects")][i].split(","))-3).to_bytes(1, "big"))
         for j in range(len([item[1] for item in config.items("objects")][i].split(","))-3):
-            file.write(int({**object_type, **bytecode, **direction}.get([item[1] for item in config.items("objects")][i].split(",")[j+3], [item[1] for item in config.items("objects")][i].split(",")[j+3])).to_bytes(1, "big"))
+            file.write(int({**bytecode, **direction}.get([item[1] for item in config.items("objects")][i].split(",")[j+3], [item[1] for item in config.items("objects")][i].split(",")[j+3])).to_bytes(1, "big"))
 else:
     file.write(int(0).to_bytes(1, "big"))
 
@@ -106,7 +103,7 @@ if "npc" in config.sections():
     for i in range(len(config.items("npc"))):
         file.write(int(len([item[1] for item in config.items("npc")][i].split(","))-3).to_bytes(1, "big"))
         for j in range(len([item[1] for item in config.items("npc")][i].split(","))-3):
-            file.write(int({**object_type, **bytecode, **direction}.get([item[1] for item in config.items("npc")][i].split(",")[j+3], [item[1] for item in config.items("npc")][i].split(",")[j+3])).to_bytes(1, "big"))
+            file.write(int({**bytecode, **direction}.get([item[1] for item in config.items("npc")][i].split(",")[j+3], [item[1] for item in config.items("npc")][i].split(",")[j+3])).to_bytes(1, "big"))
 else:
     file.write(int(0).to_bytes(1, "big"))
 

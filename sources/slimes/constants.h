@@ -23,7 +23,7 @@
 #define FLAG  0
 #define X     1
 #define Y     2
-#define ID    3
+#define ID_   3
 
 #define NO_FLAG 255
 

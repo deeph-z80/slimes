@@ -1,4 +1,5 @@
 #include "camera.h"
+#include "constants.h"
 #include "map.h"
 #include "player.h"
 
