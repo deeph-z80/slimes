@@ -2,12 +2,9 @@
 #include "constants.h"
 #include "map.h"
 #include "npc.h"
+#include "player.h"
 #include "sprites.h"
 
-uint8_t map_buffer[MAP_BUFFER_SIZE];
-uint8_t events_buffer[MAX_EVENTS_AMOUNT * LENGTH_TABLE_SIZE]; // flag, x, y, id
-uint8_t objects_buffer[MAX_OBJECTS_AMOUNT * LENGTH_TABLE_SIZE]; // flag, x, y, id
-uint8_t npc_buffer[MAX_NPC_AMOUNT * LENGTH_TABLE_SIZE]; // flag, x, y, id
 char file_name[FILE_NAME_BUFFER_SIZE];
 uint8_t music;
 
@@ -17,39 +14,34 @@ void map_::draw() {
       int8_t tile_x = camera.x / TILE_WIDTH + x;
       int8_t tile_y = camera.y / TILE_HEIGHT + y;
       //if (tile_x >= 0 && tile_x < width && tile_y >= 0 && tile_y < height) {
-      byte tile_id = data[tile_y * width + tile_x];
-      tile_id += (tile_id >= tiles_anim_start_id && tile_id <= tiles_anim_end_id) * millis() / TILE_ANIMATION_FREQUENCY % 2;
+      byte tile_id = map_buffer[tile_y * width + tile_x];
+      tile_id += (tile_id >= tiles_anim_start_id && tile_id <= tiles_anim_end_id) * gb.frameCount / TILE_ANIMATION_FREQUENCY % 2;
       gb.display.drawImage(x * TILE_WIDTH - camera.x % TILE_WIDTH, y * TILE_HEIGHT - camera.y % TILE_HEIGHT, tileset, 0, tile_id * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
 
       // check for objects to draw
       file.seek(objects_position);
-      for (byte i = 0; i < current_map.objects_amount; i++) {
-        if (tile_x == current_map.objects[i * LENGTH_TABLE_SIZE + X] && tile_y == current_map.objects[i * LENGTH_TABLE_SIZE + Y]
-            //&& flag(current_map.objects[i * LENGTH_TABLE_SIZE + FLAG]) == FALSE) {
+      for (byte i = 0; i < objects_amount; i++) {
+        if (tile_x == objects_buffer[i * LENGTH_TABLE_SIZE + X] && tile_y == objects_buffer[i * LENGTH_TABLE_SIZE + Y]
+            //&& flag(objects_buffer[i * LENGTH_TABLE_SIZE + FLAG]) == FALSE) {
            ) {
-          seek_table(current_map.objects[i * LENGTH_TABLE_SIZE + ID_]);
+          seek_table(objects_buffer[i * LENGTH_TABLE_SIZE + ID_]);
           file.read(); // skip length
           objects_sprite_set.setFrame(file.read());
           gb.display.drawImage(x * TILE_WIDTH - camera.x % TILE_WIDTH, y * TILE_HEIGHT - camera.y % TILE_HEIGHT, objects_sprite_set);
           break;
         }
       }
-
-      // check for npc to draw
-      file.seek(npc_position);
-      for (byte i = 0; i < current_map.npc_amount; i++) {
-        if (tile_x == current_map.npc_pointer[i * LENGTH_TABLE_SIZE + X] && tile_y == current_map.npc_pointer[i * LENGTH_TABLE_SIZE + Y]
-            //&& flag(current_map.npc_pointer[i * LENGTH_TABLE_SIZE + FLAG]) == FALSE) {
-           ) {
-          seek_table(current_map.npc_pointer[i * LENGTH_TABLE_SIZE + NPC_SPRITE_ID]);
-          file.read(); // skip length
-          npc_sprite_set.setFrame(file.read());
-          gb.display.drawImage(x * TILE_WIDTH - camera.x % TILE_WIDTH, y * TILE_HEIGHT - camera.y % TILE_HEIGHT, npc_sprite_set);
-          break;
-        }
-      }
       //}
     }
+  }
+
+  // check for npc to draw
+  for (byte i = 0; i < npc_amount; i++) {
+    //if (flag(npc[i].flag) == FALSE) {
+      npc_sprite_set.setFrame(npc[i].sprite_id * NPC_SPRITES_LENGTH + (npc[i].direction * 3 + npc[i].animation));
+      gb.display.drawImage(npc[i].x * TILE_WIDTH - camera.x + npc[i].x_offset, npc[i].y * TILE_HEIGHT - camera.y + npc[i].y_offset, npc_sprite_set);
+      break;
+    //}
   }
 }
 
@@ -67,33 +59,34 @@ void map_::load(uint8_t map_id) {
   tiles_anim_end_id = file.read();
   music_id = file.read();
   file.read(map_buffer, width * height);
-  data = map_buffer;
   events_amount = file.read();
   if (events_amount > 0) {
     file.read(events_buffer, events_amount * LENGTH_TABLE_SIZE);
-    events = events_buffer;
     events_position = file.position();
     seek_table(events_amount);
   }
   objects_amount = file.read();
   if (objects_amount > 0) {
     file.read(objects_buffer, objects_amount * LENGTH_TABLE_SIZE);
-    objects = objects_buffer;
     objects_position = file.position();
     seek_table(objects_amount);
   }
   npc_amount = file.read();
   if (npc_amount > 0) {
     file.read(npc_buffer, npc_amount * LENGTH_TABLE_SIZE);
-    npc_pointer = npc_buffer;
     npc_position = file.position();
     for (byte i = 0; i < npc_amount; i++) {
-      seek_table(npc_position);
-      npc[i].x = npc_pointer[i * LENGTH_TABLE_SIZE + X];
-      npc[i].y = npc_pointer[i * LENGTH_TABLE_SIZE + Y];
-      seek_table(npc_pointer[i * LENGTH_TABLE_SIZE + NPC_SPRITE_ID]);
-      npc[i].id = file.read();
+      npc[i].id = npc_buffer[i * LENGTH_TABLE_SIZE + ID_];
+      npc[i].flag = npc_buffer[i * LENGTH_TABLE_SIZE + FLAG];
+      npc[i].x = npc_buffer[i * LENGTH_TABLE_SIZE + X];
+      npc[i].y = npc_buffer[i * LENGTH_TABLE_SIZE + Y];
+      file.seek(npc_position);
+      seek_table(npc[i].id);
+      file.read(); // skip length
+      npc[i].sprite_id = file.read();
       npc[i].direction = file.read();
+      npc[i].animation = 0;
+      npc[i].is_moving = false;
     }
   }
   file.close();

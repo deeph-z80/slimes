@@ -4,12 +4,14 @@
 #define TILE_SIZE                 8
 #define TILE_WIDTH                TILE_SIZE
 #define TILE_HEIGHT               TILE_SIZE
-#define TILE_ANIMATION_FREQUENCY  500 // ms
+#define TILE_ANIMATION_FREQUENCY  20 // frame
 #define MAP_BUFFER_SIZE           50*50
 #define MAX_EVENTS_AMOUNT         10
 #define MAX_OBJECTS_AMOUNT        10
 #define MAX_NPC_AMOUNT            10
 #define LENGTH_TABLE_SIZE         4
+#define NPC_SPRITES_LENGTH        3 * 4
+#define NPC_MOVE_FREQUENCY        30 // frame
 
 #define WARP    0
 #define MESSAGE 1

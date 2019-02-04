@@ -3,6 +3,7 @@
 #include "camera.h"
 #include "constants.h"
 #include "map.h"
+#include "npc.h"
 #include "player.h"
 #include "sprites.h"
 
@@ -21,6 +22,7 @@ void setup() {
 void loop() {
   while (true) {
     player.update();
+    for (byte i = 0; i < current_map.npc_amount; i++) npc[i].update();
     camera.update();
     current_map.draw();
     player.draw();
@@ -30,7 +32,7 @@ void loop() {
     gb.display.setCursor(0, 0);
     gb.display.println(gb.getFreeRam());
     gb.display.println(gb.getCpuLoad());
-
+ 
     while (!gb.update());
   }
 }

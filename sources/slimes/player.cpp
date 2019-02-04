@@ -17,7 +17,7 @@ void player_::update() {
     if (!x_velocity != !y_velocity) {
       direction = (1 + x_velocity) * (x_velocity != 0);
       direction = (2 + y_velocity) * (y_velocity != 0 || direction == 0);
-      if (current_map.data[(y + y_velocity) * current_map.width + x + x_velocity] < current_map.tiles_block_id) is_moving = true;
+      if (current_map.map_buffer[(y + y_velocity) * current_map.width + x + x_velocity] < current_map.tiles_block_id) is_moving = true;
     }
   } else {
     scrolling++;
@@ -33,11 +33,12 @@ void player_::update() {
 
       // check for walk-triggered events
       for (byte i = 0; i < current_map.events_amount; i++) {
-        if (x == current_map.events[i * LENGTH_TABLE_SIZE + X] && y == current_map.events[i * LENGTH_TABLE_SIZE + Y]) {
+        if (x == current_map.events_buffer[i * LENGTH_TABLE_SIZE + X] && y == current_map.events_buffer[i * LENGTH_TABLE_SIZE + Y]) {
           String("maps/" + String(current_map.id) + ".map").toCharArray(file_name, FILE_NAME_BUFFER_SIZE);
+          // A VOIR SI LA LIGNE SUIVANTE EST NECESSAIRE
           current_map.file = SD.open(file_name, O_RDWR);
           current_map.file.seek(current_map.events_position);
-          current_map.seek_table(current_map.events[i * LENGTH_TABLE_SIZE + ID_]);
+          current_map.seek_table(current_map.events_buffer[i * LENGTH_TABLE_SIZE + ID_]);
           current_map.file.read(); // skip length
           switch (current_map.file.read()) {
             case WARP:
