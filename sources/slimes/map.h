@@ -9,9 +9,9 @@ class map_ {
     uint8_t npc_buffer[MAX_NPC_AMOUNT * LENGTH_TABLE_SIZE]; // flag, x, y, id
     uint32_t events_position, objects_position, npc_position;
     File file;
-    void draw(), load(uint8_t map_id), seek_table(uint8_t times);
+    char file_name[FILE_NAME_BUFFER_SIZE];
+    void draw(), load(uint8_t map_id), get_data(uint8_t id);
 };
 
 extern map_ current_map;
-extern char file_name[FILE_NAME_BUFFER_SIZE];
 extern uint8_t music;

@@ -12,15 +12,19 @@
 #define LENGTH_TABLE_SIZE         4
 #define NPC_SPRITES_LENGTH        3 * 4
 #define NPC_MOVE_FREQUENCY        30 // frame
+#define SCRIPTS_BUFFER_SIZE       255
+#define STRINGS_BUFFER_SIZE       50 // à ajuster selon le nombre de caractères affichable simultanément
 
 #define WARP    0
-#define MESSAGE 1
-#define SCRIPT  2
+#define STRING 1
 
 #define RIGHT 0
 #define UP    1
 #define LEFT  2
 #define DOWN  3
+
+#define STILL 0
+#define MOVE  1
 
 #define FLAG  0
 #define X     1

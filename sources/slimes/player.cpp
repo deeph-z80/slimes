@@ -2,6 +2,7 @@
 #include "constants.h"
 #include "map.h"
 #include "player.h"
+#include "scripts.h"
 #include "sprites.h"
 
 void player_::draw() {
@@ -10,6 +11,7 @@ void player_::draw() {
 }
 
 void player_::update() {
+  uint8_t temp;
   if (!is_moving) {
     x_velocity = y_velocity = 0;
     x_velocity = -gb.buttons.repeat(BUTTON_LEFT, 1) * (x > 0) + gb.buttons.repeat(BUTTON_RIGHT, 1) * (x < current_map.width - 1);
@@ -18,6 +20,36 @@ void player_::update() {
       direction = (1 + x_velocity) * (x_velocity != 0);
       direction = (2 + y_velocity) * (y_velocity != 0 || direction == 0);
       if (current_map.map_buffer[(y + y_velocity) * current_map.width + x + x_velocity] < current_map.tiles_block_id) is_moving = true;
+    } else if (gb.buttons.pressed(BUTTON_A)) {
+
+      // check for objects to interact
+      for (uint8_t i = 0; i < current_map.objects_amount; i++) {
+        if (x + (direction == 0) - (direction == 2) == current_map.objects_buffer[i * LENGTH_TABLE_SIZE + X] & y + (direction == 3) - (direction == 1) == current_map.objects_buffer[i * LENGTH_TABLE_SIZE + Y]
+          //flag(objects_buffer[i * LENGTH_TABLE_SIZE + FLAG]) == FALSE
+          ) {
+          current_map.file.seek(current_map.objects_position);
+          current_map.get_data(current_map.objects_buffer[i * LENGTH_TABLE_SIZE + ID_]);
+          uint8_t length = current_map.file.read()-1; // skip sprite 
+          current_map.file.read(); // skip sprite id
+          current_map.file.read(scripts_buffer, length);
+          run_script(length);
+        }
+      }
+  
+//      for (byte i = 0; i < sizeof(action_triggered_scripts); i += ACTION_SCRIPTS_LENGTH) {
+//        if (flag[action_triggered_scripts[i + 2]] == 0 &&
+//            player_x + (player_direction == 0) - (player_direction == 2) == action_triggered_scripts[i] &&
+//            player_y + (player_direction == 3) - (player_direction == 1) == action_triggered_scripts[i + 1]) {
+//          switch (action_triggered_scripts[i + 4]) {
+//            case TEXT :
+//              text((char*) strings[action_triggered_scripts[i + 5]], WITH_RESET);
+//              break;
+//            case SCRIPT :
+//              script(action_triggered_scripts[i + 5]);
+//              break;
+//          }
+//        }
+//      }
     }
   } else {
     scrolling++;
@@ -34,12 +66,10 @@ void player_::update() {
       // check for walk-triggered events
       for (byte i = 0; i < current_map.events_amount; i++) {
         if (x == current_map.events_buffer[i * LENGTH_TABLE_SIZE + X] && y == current_map.events_buffer[i * LENGTH_TABLE_SIZE + Y]) {
-          String("maps/" + String(current_map.id) + ".map").toCharArray(file_name, FILE_NAME_BUFFER_SIZE);
-          // A VOIR SI LA LIGNE SUIVANTE EST NECESSAIRE
-          current_map.file = SD.open(file_name, O_RDWR);
           current_map.file.seek(current_map.events_position);
-          current_map.seek_table(current_map.events_buffer[i * LENGTH_TABLE_SIZE + ID_]);
+          current_map.get_data(current_map.events_buffer[i * LENGTH_TABLE_SIZE + ID_]);
           current_map.file.read(); // skip length
+          // gérer la suite en script
           switch (current_map.file.read()) {
             case WARP:
               //fade.in
@@ -48,7 +78,9 @@ void player_::update() {
               player.direction = current_map.file.read();
               player.animation = 0;
               player.is_moving = false;
-              current_map.load(current_map.file.read());
+              temp = current_map.file.read();
+              current_map.file.close();
+              current_map.load(temp);
               //fade.out
               break;
             default:
@@ -57,7 +89,6 @@ void player_::update() {
               gb.display.println(current_map.file.position());
               delay(10000);
           }
-          current_map.file.close();
           break;
         }
       }

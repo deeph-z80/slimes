@@ -5,6 +5,7 @@
 #include "map.h"
 #include "npc.h"
 #include "player.h"
+#include "scripts.h"
 #include "sprites.h"
 
 void setup() {
