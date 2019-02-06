@@ -32,11 +32,11 @@ from io import StringIO
 parameter = sys.argv[1]
 
 config = configparser.ConfigParser()
-config.read(parameter.strip(".tmx")+".ini")
+config.read(parameter.replace(".tmx", ".ini"))
 
 map_file = pandas.read_csv(StringIO(etree.parse(parameter).xpath("/map/layer/data")[0].text), header = None, index_col = False)
 
-file = open(parameter.strip(".tmx")+".map", "w+b")
+file = open(parameter.replace(".tmx", ".map"), "w+b")
 file.write(int(len(map_file.columns)-1).to_bytes(1, "big"))
 file.write(int(len(map_file.index)).to_bytes(1, "big"))
 file.write(int(config.get("parameters", "tileset_id", fallback = False)).to_bytes(1, "big"))

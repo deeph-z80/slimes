@@ -14,6 +14,7 @@
 #define NPC_MOVE_FREQUENCY        30 // frame
 #define SCRIPTS_BUFFER_SIZE       255
 #define STRINGS_BUFFER_SIZE       50 // à ajuster selon le nombre de caractères affichable simultanément
+#define TEXT_CURSOR_FREQUENCY     10 // frame
 
 #define WARP    0
 #define STRING 1

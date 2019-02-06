@@ -1,6 +1,7 @@
 #include "camera.h"
 #include "constants.h"
 #include "map.h"
+#include "npc.h"
 #include "player.h"
 #include "scripts.h"
 #include "sprites.h"
@@ -19,37 +20,55 @@ void player_::update() {
     if (!x_velocity != !y_velocity) {
       direction = (1 + x_velocity) * (x_velocity != 0);
       direction = (2 + y_velocity) * (y_velocity != 0 || direction == 0);
+
+      // check for objects to collide
+      for (uint8_t i = 0; i < current_map.objects_amount; i++) {
+        if (x + x_velocity == current_map.objects_buffer[i * LENGTH_TABLE_SIZE + X] & y + y_velocity == current_map.objects_buffer[i * LENGTH_TABLE_SIZE + Y]
+            //flag(objects_buffer[i * LENGTH_TABLE_SIZE + FLAG]) == FALSE
+           ) return;
+      }
+
+      // check for npc to collide
+      for (uint8_t i = 0; i < current_map.npc_amount; i++) {
+        if (x + x_velocity == npc[i].x + npc[i].x_velocity * npc[i].is_moving & y + y_velocity ==  npc[i].y + npc[i].y_velocity * npc[i].is_moving
+            //flag(npc_buffer[i * LENGTH_TABLE_SIZE + FLAG]) == FALSE
+           ) return;
+      }
+
       if (current_map.map_buffer[(y + y_velocity) * current_map.width + x + x_velocity] < current_map.tiles_block_id) is_moving = true;
     } else if (gb.buttons.pressed(BUTTON_A)) {
 
       // check for objects to interact
       for (uint8_t i = 0; i < current_map.objects_amount; i++) {
         if (x + (direction == 0) - (direction == 2) == current_map.objects_buffer[i * LENGTH_TABLE_SIZE + X] & y + (direction == 3) - (direction == 1) == current_map.objects_buffer[i * LENGTH_TABLE_SIZE + Y]
-          //flag(objects_buffer[i * LENGTH_TABLE_SIZE + FLAG]) == FALSE
-          ) {
+            //flag(objects_buffer[i * LENGTH_TABLE_SIZE + FLAG]) == FALSE
+           ) {
           current_map.file.seek(current_map.objects_position);
           current_map.get_data(current_map.objects_buffer[i * LENGTH_TABLE_SIZE + ID_]);
-          uint8_t length = current_map.file.read()-1; // skip sprite 
+          temp = current_map.file.read() - 1; // skip sprite
           current_map.file.read(); // skip sprite id
-          current_map.file.read(scripts_buffer, length);
-          run_script(length);
+          current_map.file.read(scripts_buffer, temp);
+          run_script(temp);
+          return;
         }
       }
-  
-//      for (byte i = 0; i < sizeof(action_triggered_scripts); i += ACTION_SCRIPTS_LENGTH) {
-//        if (flag[action_triggered_scripts[i + 2]] == 0 &&
-//            player_x + (player_direction == 0) - (player_direction == 2) == action_triggered_scripts[i] &&
-//            player_y + (player_direction == 3) - (player_direction == 1) == action_triggered_scripts[i + 1]) {
-//          switch (action_triggered_scripts[i + 4]) {
-//            case TEXT :
-//              text((char*) strings[action_triggered_scripts[i + 5]], WITH_RESET);
-//              break;
-//            case SCRIPT :
-//              script(action_triggered_scripts[i + 5]);
-//              break;
-//          }
-//        }
-//      }
+
+      // check for npc to interact
+      for (uint8_t i = 0; i < current_map.npc_amount; i++) {
+        if (x + (direction == 0) - (direction == 2) == npc[i].x + npc[i].x_velocity * npc[i].is_moving & y + (direction == 3) - (direction == 1) ==  npc[i].y + npc[i].y_velocity * npc[i].is_moving
+            //flag(npc_buffer[i * LENGTH_TABLE_SIZE + FLAG]) == FALSE
+           ) {
+          current_map.file.seek(current_map.npc_position);
+          current_map.get_data(current_map.npc_buffer[i * LENGTH_TABLE_SIZE + ID_]);
+          temp = current_map.file.read() - 1; // skip sprite
+          current_map.file.read(); // skip sprite id
+          current_map.file.read(); // skip direction
+          current_map.file.read(); // skip movement
+          current_map.file.read(scripts_buffer, temp);
+          run_script(temp);
+          return;
+        }
+      }
     }
   } else {
     scrolling++;

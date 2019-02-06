@@ -1,9 +1,10 @@
 #include "constants.h"
 #include "map.h"
 #include "npc.h"
+#include "player.h"
 
 void npc_::update() {
-  // penser à checker movement
+  // penser à checker movement (si le npc est static ou pas)
   if (!is_moving) {
     if(gb.frameCount % NPC_MOVE_FREQUENCY == 0){
       x_velocity = y_velocity = 0;
@@ -12,7 +13,11 @@ void npc_::update() {
       if (!x_velocity != !y_velocity) {
         direction = (1 + x_velocity) * (x_velocity != 0);
         direction = (2 + y_velocity) * (y_velocity != 0 || direction == 0);
-        // tester aussi s'il y a un évènement ou le joueur
+
+        if (x + x_velocity == player.x + player.x_velocity * player.is_moving & y + y_velocity ==  player.y + player.y_velocity * player.is_moving) return;
+
+        // tester aussi s'il y a un évènement
+
         if (current_map.map_buffer[(y + y_velocity) * current_map.width + x + x_velocity] < current_map.tiles_block_id) is_moving = true;
       }
     }
