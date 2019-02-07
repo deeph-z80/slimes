@@ -2,7 +2,9 @@
 # -*- coding: utf-8 -*-
 
 bytecode = {"WARP": 0,
-            "STRING": 1}
+            "STRING": 1,
+            "SETFLAG": 2,
+            "RESFLAG": 3}
 
 other_constants = {"RIGHT": 0,
                    "UP": 1,

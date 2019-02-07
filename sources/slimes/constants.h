@@ -15,9 +15,14 @@
 #define SCRIPTS_BUFFER_SIZE       255
 #define STRINGS_BUFFER_SIZE       50 // à ajuster selon le nombre de caractères affichable simultanément
 #define TEXT_CURSOR_FREQUENCY     10 // frame
+#define TEXT_SLOW_SPEED_FREQUENCY 5
+#define FLAGS_BUFFER_SIZE         104
 
 #define WARP    0
-#define STRING 1
+#define STRING  1
+#define SETFLAG 2
+#define RESFLAG 3
+#define NO_FLAG 255
 
 #define RIGHT 0
 #define UP    1
@@ -31,8 +36,6 @@
 #define X     1
 #define Y     2
 #define ID_   3
-
-#define NO_FLAG 255
 
 #define OBJECTS_SPRITE_ID 0
 #define OBJECTS_DATA      1

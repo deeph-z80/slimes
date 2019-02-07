@@ -5,5 +5,6 @@ byte text(const char string[]);
 void text_frame();
 void text_pause();
 
+extern File strings_file;
 extern uint8_t scripts_buffer[SCRIPTS_BUFFER_SIZE];
 extern uint8_t strings_buffer[STRINGS_BUFFER_SIZE];

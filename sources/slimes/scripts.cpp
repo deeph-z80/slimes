@@ -1,4 +1,5 @@
 #include "constants.h"
+#include "player.h"
 #include "scripts.h"
 
 void run_script(uint8_t script_size) {
@@ -6,7 +7,6 @@ void run_script(uint8_t script_size) {
     switch (scripts_buffer[pos]) {
       case STRING:
         pos++;
-        File strings_file;
         switch (gb.language.getCurrentLang()) {
           case LANG_FR:
             strings_file = SD.open("strings/fr.str", O_RDWR);
@@ -21,32 +21,48 @@ void run_script(uint8_t script_size) {
           strings_file.seek(strings_file.position() + length);
         }
         length = strings_file.read();
-        memset(strings_buffer, 0, SCRIPTS_BUFFER_SIZE);
+        memset(strings_buffer, 0, sizeof(strings_buffer));
         strings_file.read(strings_buffer, length);
         strings_file.close();
         text((char*) strings_buffer);
+        break;
+      case SETFLAG:
+        pos++;
+        player.set_flag(scripts_buffer[pos], true);
+        break;
+      case RESFLAG:
+        pos++;
+        player.set_flag(scripts_buffer[pos], false);
         break;
     }
   }
 }
 
 byte text(const char string[]) {
+  boolean delay = false;
   text_frame();
   for (byte i = 0; i < strlen(string); i++) {
     char c = (char) string[i];
     switch ((byte) c) {
-      case 0x0A: // new line
+      case 0x0a: // new line
         gb.display.setCursor(2, gb.display.getCursorY() + 6);
         break;
-      case 0x7C: // pause
+      case 0x7c: // pause
         text_pause();
         text_frame();
+        break;
+      case 0x7b: // slow down
+        delay = true;
+        break;
+      case 0x7d: // restore speed
+        delay = false;
         break;
       default:
         gb.display.print(c);
         while (!gb.update());
         break;
     }
+    if(delay) while(!(gb.update() & (gb.frameCount % TEXT_SLOW_SPEED_FREQUENCY == 0)));
   }
   text_pause();
 }
@@ -69,5 +85,6 @@ void text_pause() {
   }
 }
 
+File strings_file;
 uint8_t scripts_buffer[SCRIPTS_BUFFER_SIZE];
 uint8_t strings_buffer[STRINGS_BUFFER_SIZE];

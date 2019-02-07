@@ -4,7 +4,7 @@
 #include "player.h"
 
 void npc_::update() {
-  // penser à checker movement (si le npc est static ou pas)
+  // penser à checker movement (si le npc est static ou pas) & le flag
   if (!is_moving) {
     if(gb.frameCount % NPC_MOVE_FREQUENCY == 0){
       x_velocity = y_velocity = 0;
