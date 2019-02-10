@@ -3,10 +3,12 @@
 #include "camera.h"
 #include "constants.h"
 #include "map.h"
+#include "menu.h"
 #include "npc.h"
 #include "player.h"
 #include "scripts.h"
 #include "sprites.h"
+#include "strings.h"
 
 void setup() {
   gb.begin();

@@ -17,6 +17,7 @@
 #define TEXT_CURSOR_FREQUENCY     10 // frame
 #define TEXT_SLOW_SPEED_FREQUENCY 5
 #define FLAGS_BUFFER_SIZE         104
+#define ARROW_DELAY               5
 
 #define WARP    0
 #define STRING  1
@@ -44,3 +45,5 @@
 #define NPC_DIRECTION 1
 #define NPC_MOVEMENT  2
 #define NPC_DATA      3
+
+#define CANCEL  255

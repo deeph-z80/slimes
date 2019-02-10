@@ -1,10 +1,12 @@
 #include "camera.h"
 #include "constants.h"
 #include "map.h"
+#include "menu.h"
 #include "npc.h"
 #include "player.h"
 #include "scripts.h"
 #include "sprites.h"
+#include "strings.h"
 
 void player_::draw() {
   player_sprite_set.setFrame(direction * 3 + animation);
@@ -70,6 +72,19 @@ void player_::update() {
           return;
         }
       }
+    }else if (gb.buttons.pressed(BUTTON_MENU)) {
+      gb.display.setColor(WHITE);
+      gb.display.fillRect(49, 0, 31, 21);
+      gb.display.setColor(BLACK);
+      gb.display.drawRect(49, 0, 31, 21);
+      menu_ temp;
+      temp.x = 51;
+      temp.y = 2;
+      temp.cursor_pos = 0;
+      temp.entries_number = 3;
+      const MultiLang* entries[] = {e_slimes, e_items, e_save};
+      temp.entries = entries;
+      temp.handle();
     }
   } else {
     scrolling++;

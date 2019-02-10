@@ -15,7 +15,8 @@ for i in range(1, len(sys.argv)):
     if sys.argv[i] == "-i":
         i += 1
         try:
-            input_image = PIL.Image.open(sys.argv[i])
+            input_image_name = sys.argv[i]
+            input_image = PIL.Image.open(input_image_name)
         except AttributeError:
             print("Unsupported image format : "+sys.argv[i])
             exit()
@@ -59,7 +60,7 @@ try:
 except IOError:
     print("Cannot write "+output_file)
 
-file.write("const uint8_t "+os.path.splitext(output_file)[0]+"_data[] = {\n")
+file.write("const uint8_t "+os.path.splitext(os.path.basename(input_image_name))[0]+"_data[] = {\n")
 file.write("  "+str(input_image.size).strip("()")+",  // sprites width & height\n")
 file.write("  1,0,    // sprites amount lower & upper 8-bit\n")
 file.write("  0,      // frames loop (0 = no animation)\n")
@@ -89,7 +90,7 @@ for y in range(0, height):
         if x == width-1 and y != height-1:
             file.write(",")
     file.write("\n")
-file.write("};\nImage "+os.path.splitext(output_file)[0]+"("+os.path.splitext(output_file)[0]+"_data);")
+file.write("};\nImage "+os.path.splitext(os.path.basename(input_image_name))[0]+"("+os.path.splitext(os.path.basename(input_image_name))[0]+"_data);")
 file.close()
 
 print("File correctly converted.")
