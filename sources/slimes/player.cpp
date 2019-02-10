@@ -35,6 +35,7 @@ void player_::update() {
            ) return;
       }
 
+      // check for tiles to collide
       if (current_map.map_buffer[(y + y_velocity) * current_map.width + x + x_velocity] < current_map.tiles_block_id) is_moving = true;
     } else if (gb.buttons.pressed(BUTTON_A)) {
 
@@ -60,7 +61,7 @@ void player_::update() {
            ) {
           current_map.file.seek(current_map.npc_position);
           current_map.get_data(current_map.npc_buffer[i * LENGTH_TABLE_SIZE + ID_]);
-          temp = current_map.file.read() - 1; // skip sprite
+          temp = current_map.file.read() - 3; // skip sprite id, direction & movement
           current_map.file.read(); // skip sprite id
           current_map.file.read(); // skip direction
           current_map.file.read(); // skip movement
@@ -84,47 +85,27 @@ void player_::update() {
 
       // check for walk-triggered events
       for (byte i = 0; i < current_map.events_amount; i++) {
-
-        // penser à checker le flag !!!
-        
-        if (x == current_map.events_buffer[i * LENGTH_TABLE_SIZE + X] && y == current_map.events_buffer[i * LENGTH_TABLE_SIZE + Y]) {
+        if (x == current_map.events_buffer[i * LENGTH_TABLE_SIZE + X] && y == current_map.events_buffer[i * LENGTH_TABLE_SIZE + Y]
+            & get_flag(current_map.events_buffer[i * LENGTH_TABLE_SIZE + FLAG]) == false) {
           current_map.file.seek(current_map.events_position);
           current_map.get_data(current_map.events_buffer[i * LENGTH_TABLE_SIZE + ID_]);
-          current_map.file.read(); // skip length
-          // gérer la suite en script
-          switch (current_map.file.read()) {
-            case WARP:
-              //fade.in
-              x = current_map.file.read();
-              y = current_map.file.read();
-              direction = current_map.file.read();
-              animation = 0;
-              is_moving = false;
-              temp = current_map.file.read();
-              current_map.file.close();
-              current_map.load(temp);
-              //fade.out
-              break;
-            default:
-              gb.display.clear();
-              gb.display.setCursor(0, 0);
-              gb.display.println(current_map.file.position());
-              delay(10000);
-          }
-          break;
+          temp = current_map.file.read();
+          current_map.file.read(scripts_buffer, temp);
+          run_script(temp);
+          return;
         }
       }
     }
   }
 }
 
-bool player_::get_flag(uint8_t id){
-  if(id == NO_FLAG) return false;
+bool player_::get_flag(uint8_t id) {
+  if (id == NO_FLAG) return false;
   return (bool)flags[id / 8] & (1 << (id % 8));
 }
 
-void player_::set_flag(uint8_t id, bool value){
-  if(id == NO_FLAG) return;
+void player_::set_flag(uint8_t id, bool value) {
+  if (id == NO_FLAG) return;
   flags[id / 8] |= value << (id % 8);
 }
 

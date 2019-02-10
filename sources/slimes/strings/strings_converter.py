@@ -3,8 +3,6 @@
 
 import configparser, os, pip, subprocess, sys
 
-from io import StringIO
-
 parameter = sys.argv[1]
 config = configparser.ConfigParser()
 config.read(parameter)

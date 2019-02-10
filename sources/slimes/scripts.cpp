@@ -1,10 +1,24 @@
 #include "constants.h"
+#include "map.h"
 #include "player.h"
 #include "scripts.h"
 
 void run_script(uint8_t script_size) {
+  uint8_t temp;
   for (uint8_t pos = 0; pos < script_size; pos++) {
     switch (scripts_buffer[pos]) {
+      case WARP:
+        //fade_in();
+        pos++; player.x = scripts_buffer[pos];
+        pos++; player.y = scripts_buffer[pos];
+        pos++; player.direction = scripts_buffer[pos];
+        player.animation = 0;
+        player.is_moving = false;
+        pos++; temp = scripts_buffer[pos];
+        current_map.file.close();
+        current_map.load(temp);
+        //fade_out();
+        break;
       case STRING:
         pos++;
         switch (gb.language.getCurrentLang()) {
@@ -62,7 +76,7 @@ byte text(const char string[]) {
         while (!gb.update());
         break;
     }
-    if(delay) while(!(gb.update() & (gb.frameCount % TEXT_SLOW_SPEED_FREQUENCY == 0)));
+    if (delay) while (!(gb.update() & (gb.frameCount % TEXT_SLOW_SPEED_FREQUENCY == 0)));
   }
   text_pause();
 }
