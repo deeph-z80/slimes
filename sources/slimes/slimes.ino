@@ -36,6 +36,6 @@ void loop() {
     gb.display.println(gb.getFreeRam());
     gb.display.println(gb.getCpuLoad());
  
-    while (!gb.update());
+    gb.waitForUpdate();
   }
 }

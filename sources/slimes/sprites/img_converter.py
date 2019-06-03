@@ -43,6 +43,11 @@ for i in range(1, len(sys.argv)):
         except IndexError:
             print("No output file specified.")
             exit()
+        try:
+            file = open(output_file, "w")
+        except IOError:
+            print("Cannot write "+output_file)
+            exit()
 
 try:
     input_image
@@ -54,11 +59,6 @@ except NameError:
     print("-p [palette] : input palette image (must be 16×1 px)")
     print("-o [file] : output file")
     exit()
-
-try:
-    file = open(output_file, "w")
-except IOError:
-    print("Cannot write "+output_file)
 
 file.write("const uint8_t "+os.path.splitext(os.path.basename(input_image_name))[0]+"_data[] = {\n")
 file.write("  "+str(input_image.size).strip("()")+",  // sprites width & height\n")

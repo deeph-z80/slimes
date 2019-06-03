@@ -77,14 +77,21 @@ void player_::update() {
       gb.display.fillRect(49, 0, 31, 21);
       gb.display.setColor(BLACK);
       gb.display.drawRect(49, 0, 31, 21);
-      menu_ temp;
-      temp.x = 51;
-      temp.y = 2;
-      temp.cursor_pos = 0;
-      temp.entries_number = 3;
       const MultiLang* entries[] = {e_slimes, e_items, e_save};
-      temp.entries = entries;
-      temp.handle();
+      menu_ temp = create_menu(51, 2, 0, 3, entries);
+      switch(temp.handle()){
+        case 0:{ // SLIMES
+          Image temp("sprites/slimes/00.bmp");
+          gb.display.fill(WHITE);
+          gb.display.drawImage(8, 8, temp, 8, 8);
+          gb.waitForUpdate();
+          delay(5000);
+          break;
+        }
+        case 1: // ITEMS
+        case 2: // SAVE
+          break;
+      }
     }
   } else {
     scrolling++;

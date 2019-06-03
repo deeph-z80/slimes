@@ -73,7 +73,7 @@ byte text(const char string[]) {
         break;
       default:
         gb.display.print(c);
-        while (!gb.update());
+        gb.waitForUpdate();
         break;
     }
     if (delay) while (!(gb.update() & (gb.frameCount % TEXT_SLOW_SPEED_FREQUENCY == 0)));
@@ -95,7 +95,7 @@ void text_pause() {
     gb.display.drawChar(gb.display.getCursorX(), gb.display.getCursorY(), 21, 1);
     gb.display.setColor(BLACK);
     if (gb.buttons.pressed(BUTTON_A)) break;
-    while (!gb.update());
+    gb.waitForUpdate();
   }
 }
 

@@ -1,14 +1,22 @@
-#include "menu.h"
 #include "constants.h"
+#include "menu.h"
+
+menu_ create_menu(uint8_t x, uint8_t y, uint8_t cursor_pos, uint8_t entries_number, const MultiLang** entries){
+  menu_ temp;
+  temp.x = x;
+  temp.y = y;
+  temp.cursor_pos = cursor_pos;
+  temp.entries_number = entries_number;
+  temp.entries = entries;
+  return temp;
+}
 
 uint8_t menu_::handle() {
   for (uint8_t i = 0; i < entries_number; i++) {
     gb.display.setCursor(x + 4, y + 6 * i);
     gb.display.print(entries[i]);
   }
-  uint8_t option = handle_vertical_cursor();
-  if (option == CANCEL) return CANCEL;
-  //return data[4 + option];
+  return handle_vertical_cursor();
 }
 
 uint8_t menu_::handle_vertical_cursor() {
