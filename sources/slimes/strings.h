@@ -1,14 +1,9 @@
-const MultiLang e_slimes[] = {
-  { LANG_EN, "SLIMES" },
-  { LANG_FR, "SLIMES" },
-};
+#include <Gamebuino-Meta.h>
 
-const MultiLang e_items[] = {
-  { LANG_EN, "ITEMS" },
-  { LANG_FR, "OBJETS" },
-};
+extern const MultiLang e_slimes[];
+extern const MultiLang e_items[];
+extern const MultiLang e_save[];
 
-const MultiLang e_save[] = {
-  { LANG_EN, "SAVE" },
-  { LANG_FR, "SAUVER" },
-};
+// Slimes names
+extern const MultiLang n_plantslime[];
+extern const MultiLang* slimes_names[];

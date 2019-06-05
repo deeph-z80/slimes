@@ -73,23 +73,19 @@ void player_::update() {
         }
       }
     }else if (gb.buttons.pressed(BUTTON_MENU)) {
-      gb.display.setColor(WHITE);
-      gb.display.fillRect(49, 0, 31, 21);
-      gb.display.setColor(BLACK);
-      gb.display.drawRect(49, 0, 31, 21);
+      draw_frame(49, 0, 31, 21);
       const MultiLang* entries[] = {e_slimes, e_items, e_save};
+      #define SLIMES  0
+      #define ITEMS   1
+      #define SAVE    2
       menu_ temp = create_menu(51, 2, 0, 3, entries);
       switch(temp.handle()){
-        case 0:{ // SLIMES
-          Image temp("sprites/slimes/00.bmp");
-          gb.display.fill(WHITE);
-          gb.display.drawImage(8, 8, temp, 8, 8);
-          gb.waitForUpdate();
-          delay(5000);
+        case SLIMES:{
+          slimes_menu();
           break;
         }
-        case 1: // ITEMS
-        case 2: // SAVE
+        case ITEMS:
+        case SAVE:
           break;
       }
     }

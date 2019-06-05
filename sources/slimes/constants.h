@@ -47,3 +47,10 @@
 #define NPC_DATA      3
 
 #define CANCEL  255
+
+#define TYPE_GRASS  0
+#define TYPE_FIRE   1
+#define TYPE_WATER  2
+#define TYPE_NORMAL 3
+#define TYPE_POISON 4
+#define TYPE_ROCK   5

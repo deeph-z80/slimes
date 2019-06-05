@@ -8,6 +8,7 @@
 #include "player.h"
 #include "scripts.h"
 #include "sprites.h"
+#include "stats.h"
 #include "strings.h"
 
 void setup() {
