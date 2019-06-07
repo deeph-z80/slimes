@@ -20,6 +20,3 @@ const MultiLang n_plantslime[] = {
   { LANG_EN, "PLANTSLIME" },
   { LANG_FR, "SLIMEHERBE" },
 };
-const MultiLang* slimes_names[] = {
-  n_plantslime
-};

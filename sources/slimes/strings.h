@@ -6,4 +6,3 @@ extern const MultiLang e_save[];
 
 // Slimes names
 extern const MultiLang n_plantslime[];
-extern const MultiLang* slimes_names[];

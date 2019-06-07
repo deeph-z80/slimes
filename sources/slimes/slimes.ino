@@ -19,6 +19,15 @@ void setup() {
   player.direction = DOWN;
   player.animation = 0;
   player.is_moving = false;
+
+  // debug
+  player.slimes_held[1] = slime{0, 1, 10, 0, 0, {
+    { 0, TYPE_GRASS, 10, 1, 0, n_plantslime },
+    { 0, TYPE_GRASS, 10, 1, 0, n_plantslime },
+    { 0, TYPE_GRASS, 10, 1, 0, n_plantslime },
+    { 0, TYPE_GRASS, 10, 1, 0, n_plantslime }
+  }};
+
   music = -1;
   current_map.load(0);
 }

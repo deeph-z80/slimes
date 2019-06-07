@@ -7,6 +7,7 @@
 #include "scripts.h"
 #include "sprites.h"
 #include "strings.h"
+#include "stats.h"
 
 void player_::draw() {
   player_sprite_set.setFrame(direction * 3 + animation);
@@ -74,11 +75,10 @@ void player_::update() {
       }
     }else if (gb.buttons.pressed(BUTTON_MENU)) {
       draw_frame(49, 0, 31, 21);
-      const MultiLang* entries[] = {e_slimes, e_items, e_save};
       #define SLIMES  0
       #define ITEMS   1
       #define SAVE    2
-      menu_ temp = create_menu(51, 2, 0, 3, entries);
+      menu_ temp = menu_{51, 2, 0, 3, {e_slimes, e_items, e_save}};
       switch(temp.handle()){
         case SLIMES:{
           slimes_menu();

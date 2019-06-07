@@ -1,24 +1,14 @@
 #include "constants.h"
 #include "map.h"
 #include "menu.h"
+#include "player.h"
 #include "stats.h"
-#include "strings.h"
 
 void draw_frame(uint8_t x, uint8_t y, uint8_t w, uint8_t h){
   gb.display.setColor(WHITE);
   gb.display.fillRect(x, y, w, h);
   gb.display.setColor(BLACK);
   gb.display.drawRect(x, y, w, h);
-}
-
-menu_ create_menu(uint8_t x, uint8_t y, uint8_t cursor_pos, uint8_t entries_number, const MultiLang** entries){
-  menu_ temp;
-  temp.x = x;
-  temp.y = y;
-  temp.cursor_pos = cursor_pos;
-  temp.entries_number = entries_number;
-  temp.entries = entries;
-  return temp;
 }
 
 uint8_t menu_::handle() {
@@ -55,12 +45,12 @@ uint8_t menu_::handle_vertical_cursor() {
 
 uint8_t slimes_menu(){
   draw_frame(2, 0, 78, 57);
-  String("sprites/slimes/" + String(plantslime.id) + ".bmp").toCharArray(current_map.file_name, FILE_NAME_BUFFER_SIZE);
+  String("sprites/slimes/" + String(player.slimes_held[1].id) + ".bmp").toCharArray(current_map.file_name, FILE_NAME_BUFFER_SIZE);
   Image temp(current_map.file_name);
   gb.display.drawImage(8, 2, temp, 8, 8);
   gb.display.setCursor(17, 2);
   gb.display.setColor(BLACK);
-  gb.display.print(slimes_names[plantslime.id]);
+  gb.display.print(slimes[player.slimes_held[1].id]->name);
   draw_frame(17, 8, 43, 2);
   gb.waitForUpdate();
   delay(2000);

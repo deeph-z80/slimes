@@ -18,6 +18,9 @@
 #define TEXT_SLOW_SPEED_FREQUENCY 5
 #define FLAGS_BUFFER_SIZE         104
 #define ARROW_DELAY               5
+#define MAX_HELD_SLIMES           6
+#define MAX_STORED_SLIMES         30
+#define MAX_MENU_ENTRIES          4
 
 #define WARP    0
 #define STRING  1
