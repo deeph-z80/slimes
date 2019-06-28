@@ -20,3 +20,7 @@ const MultiLang n_plantslime[] = {
   { LANG_EN, "PLANTSLIME" },
   { LANG_FR, "SLIMEHERBE" },
 };
+const MultiLang n_fireslime[] = {
+  { LANG_EN, "FIRESLIME" },
+  { LANG_FR, "SLIMEFEU" },
+};

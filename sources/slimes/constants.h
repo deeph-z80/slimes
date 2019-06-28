@@ -57,3 +57,7 @@
 #define TYPE_NORMAL 3
 #define TYPE_POISON 4
 #define TYPE_ROCK   5
+
+#define NO_DATA 255
+
+extern char file_name[FILE_NAME_BUFFER_SIZE];

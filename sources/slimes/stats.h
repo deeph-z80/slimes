@@ -19,9 +19,10 @@ class slime {
     uint8_t id, level, current_hp, hp_bonus;
     uint16_t xp;
     slime_move moves[4];
+    void free();
 };
 
-extern slime_stat plantslime;
+extern slime_stat plantslime, fireslime;
 
 extern slime_stat* slimes[];
 #endif

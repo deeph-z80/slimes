@@ -45,13 +45,19 @@ uint8_t menu_::handle_vertical_cursor() {
 
 uint8_t slimes_menu(){
   draw_frame(2, 0, 78, 57);
-  String("sprites/slimes/" + String(player.slimes_held[1].id) + ".bmp").toCharArray(current_map.file_name, FILE_NAME_BUFFER_SIZE);
-  Image temp(current_map.file_name);
-  gb.display.drawImage(8, 2, temp, 8, 8);
-  gb.display.setCursor(17, 2);
-  gb.display.setColor(BLACK);
-  gb.display.print(slimes[player.slimes_held[1].id]->name);
-  draw_frame(17, 8, 43, 2);
-  gb.waitForUpdate();
-  delay(2000);
+  for(uint8_t i = 0; i < MAX_HELD_SLIMES; i++){
+    if (player.slimes_held[i].id == NO_DATA) break;
+    String("sprites/slimes/" + String(player.slimes_held[i].id) + ".bmp").toCharArray(file_name, FILE_NAME_BUFFER_SIZE);
+    Image temp(file_name);
+    gb.display.drawImage(8, i*9+2, temp, 8, 8);
+    gb.display.setCursor(17, i*9+2);
+    gb.display.setColor(BLACK);
+    gb.display.print(slimes[player.slimes_held[i].id]->name);
+    gb.display.fillRect(17, i*9+8, 43, 2);
+    gb.display.setColor(WHITE);
+    gb.display.drawFastHLine(18, i*9+8, 41);
+  }
+  do{
+    gb.waitForUpdate();
+  }while (!gb.buttons.pressed(BUTTON_A));
 }

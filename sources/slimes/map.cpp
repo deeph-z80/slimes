@@ -5,7 +5,6 @@
 #include "player.h"
 #include "sprites.h"
 
-char file_name[FILE_NAME_BUFFER_SIZE];
 uint8_t music;
 
 void map_::draw() {
