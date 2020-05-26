@@ -34,9 +34,9 @@ void setup() {
     { NO_DATA, TYPE_GRASS, 10, 1, 0, n_plantslime }
   }};
   player.slimes_held[2].free();
+  player.slimes_held[3].free();
   player.slimes_held[4].free();
   player.slimes_held[5].free();
-  player.slimes_held[6].free();
 
   music = -1;
   current_map.load(0);

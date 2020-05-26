@@ -78,7 +78,7 @@ void player_::update() {
       #define SLIMES  0
       #define ITEMS   1
       #define SAVE    2
-      menu_ temp = menu_{51, 2, 0, 3, {e_slimes, e_items, e_save}};
+      menu_ temp = menu_{51, 2, 0, 3, 0, 6, {e_slimes, e_items, e_save}};
       switch(temp.handle()){
         case SLIMES:{
           slimes_menu();

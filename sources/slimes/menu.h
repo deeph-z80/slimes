@@ -5,7 +5,7 @@ uint8_t slimes_menu();
 
 class menu_ {
   public:
-    uint8_t x, y, cursor_pos, entries_number;
+    uint8_t x, y, cursor_pos, entries_number, x_offset, y_increase;
     const MultiLang* entries[MAX_MENU_ENTRIES];
     uint8_t handle(), handle_vertical_cursor();
 };

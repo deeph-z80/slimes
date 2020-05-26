@@ -1,3 +1,5 @@
+#include <Gamebuino-Meta.h>
+
 #define FPS 30
 #define FILE_NAME_BUFFER_SIZE     30
 
@@ -20,7 +22,7 @@
 #define ARROW_DELAY               5
 #define MAX_HELD_SLIMES           6
 #define MAX_STORED_SLIMES         30
-#define MAX_MENU_ENTRIES          4
+#define MAX_MENU_ENTRIES          6
 
 #define WARP    0
 #define STRING  1
@@ -58,6 +60,7 @@
 #define TYPE_POISON 4
 #define TYPE_ROCK   5
 
-#define NO_DATA 255
+#define NO_DATA 20
 
 extern char file_name[FILE_NAME_BUFFER_SIZE];
+extern Image temp;

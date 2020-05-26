@@ -8,5 +8,10 @@ void slime::free() {
 
 slime_stat plantslime = { 0, TYPE_GRASS, 64, 49, 49, 49, 1, 200, n_plantslime };
 slime_stat fireslime = { 1, TYPE_FIRE, 64, 49, 49, 49, 1, 200, n_fireslime };
+slime_stat nodataslime = { 20, NO_DATA, NO_DATA, NO_DATA, NO_DATA, NO_DATA, NO_DATA, NO_DATA, n_nodataslime };
 
-slime_stat* slimes[] = { &plantslime, &fireslime };
+slime_stat* slimes[] = { &plantslime, &fireslime, &fireslime, &fireslime, &fireslime,
+                         &fireslime, &fireslime, &fireslime, &fireslime, &fireslime,
+                         &fireslime, &fireslime, &fireslime, &fireslime, &fireslime,
+                         &fireslime, &fireslime, &fireslime, &fireslime, &fireslime,
+                         &nodataslime };

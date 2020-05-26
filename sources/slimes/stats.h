@@ -22,7 +22,7 @@ class slime {
     void free();
 };
 
-extern slime_stat plantslime, fireslime;
+extern slime_stat plantslime, fireslime, nodataslime;
 
 extern slime_stat* slimes[];
 #endif
