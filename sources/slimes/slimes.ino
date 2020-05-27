@@ -27,7 +27,7 @@ void setup() {
     { NO_DATA, TYPE_GRASS, 10, 1, 0, n_plantslime },
     { NO_DATA, TYPE_GRASS, 10, 1, 0, n_plantslime }
   }};
-  player.slimes_held[1] = slime{0, 1, 10, 0, 0, {
+  player.slimes_held[1] = slime{0, 1, 4, 0, 0, {
     { 0, TYPE_GRASS, 10, 1, 0, n_plantslime },
     { NO_DATA, TYPE_GRASS, 10, 1, 0, n_plantslime },
     { NO_DATA, TYPE_GRASS, 10, 1, 0, n_plantslime },

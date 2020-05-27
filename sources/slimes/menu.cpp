@@ -53,15 +53,12 @@ uint8_t slimes_menu(){
     String("sprites/slimes/" + String(player.slimes_held[i].id) + ".bmp").toCharArray(file_name, FILE_NAME_BUFFER_SIZE);
     temp.init(file_name);
     gb.display.drawImage(8, i*9+2, temp, 8, 8);
-//    gb.display.setCursor(17, i*9+2);
-    gb.display.setColor(BLACK);
-//    gb.display.print(slimes[player.slimes_held[i].id]->name);
-    gb.display.fillRect(17, i*9+8, 43, 2);
+    draw_hp_box(player.slimes_held[i], 17, i*9+7);
     gb.display.setColor(WHITE);
-    gb.display.drawFastHLine(18, i*9+8, 41);
+    gb.display.drawFastHLine(18, i*9+7, 41);
   }
 
-  menu_ temp = menu_{4, 2, 0, i, 8, 9, {
+  menu_ temp2 = menu_{4, 2, 0, i, 8, 9, {
     slimes[player.slimes_held[0].id]->name,
     slimes[player.slimes_held[1].id]->name,
     slimes[player.slimes_held[2].id]->name,
@@ -69,20 +66,66 @@ uint8_t slimes_menu(){
     slimes[player.slimes_held[4].id]->name,
     slimes[player.slimes_held[5].id]->name}};
   gb.waitForUpdate();
-  i = temp.handle();
+  i = temp2.handle();
   if (i == CANCEL) return CANCEL;
 
   gb.waitForUpdate();
   draw_frame(53, 49, 27, 15);
   #define STATS 0
   #define ORDER 1
-  menu_ temp2 = menu_{55, 51, 0, 2, 0, 6, {e_stats, e_order}};
+  temp2 = menu_{55, 51, 0, 2, 0, 6, {e_stats, e_order}};
   switch(temp2.handle()){
     case STATS:
+      draw_frame(0, 2, 36, 62);
+      draw_frame(0, 12, 80, 52);
+      gb.display.setColor(WHITE);
+      gb.display.fillRect(1, 3, 34, 60);
+      String("sprites/slimes/" + String(player.slimes_held[i].id) + ".bmp").toCharArray(file_name, FILE_NAME_BUFFER_SIZE);
+      temp.init(file_name);
+      gb.display.drawImage(2, 4, temp, 32, 32);
+      draw_slime_hp_info(player.slimes_held[i], 35, 14);
+      do{
+        gb.waitForUpdate();
+      }while (!gb.buttons.pressed(BUTTON_A));
+      break;
     case ORDER:
       break;
   }
 //  do{
 //    gb.waitForUpdate();
 //  }while (!gb.buttons.pressed(BUTTON_A));
+}
+
+void draw_slime_hp_info(slime slime, uint8_t x, uint8_t y){
+  gb.display.setColor(BLACK);
+  gb.display.setCursor(x, y);
+  gb.display.print(slimes[slime.id]->name);
+  draw_hp_box(slime, x+1, y+6);
+  gb.display.setColor(BLACK);
+  gb.display.setCursor(x, y+10);
+  gb.display.print(e_level);
+  gb.display.setCursor(x+3, y+10);
+  gb.display.print(":");
+  gb.display.setCursor(x+6, y+10);
+  gb.display.print(slime.level);
+  String(String(slime.current_hp) + "/" + String(compute_hp(slime))).toCharArray(file_name, FILE_NAME_BUFFER_SIZE);
+  gb.display.setCursor(x+16, y+10);
+  gb.display.print(file_name);
+}
+
+void draw_hp_box(slime slime, uint8_t x, uint8_t y){
+  draw_frame(x+1, y, 41, 3);
+  gb.display.drawPixel(x, y+1);
+  gb.display.drawPixel(x+42, y+1);
+  gb.display.setColor(WHITE);
+  gb.display.drawFastHLine(x+1, y+1, 41);
+  float temp = (float)slime.current_hp/compute_hp(slime);
+  if(temp > 0.6){
+    gb.display.setColor(GREEN);
+  }else if(temp > 0.3){
+    gb.display.setColor(ORANGE);
+  }else{
+    gb.display.setColor(RED);
+  }
+  gb.display.drawFastHLine(x+1, y+1, temp*41);
 }

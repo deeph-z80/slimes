@@ -20,6 +20,10 @@ const MultiLang e_order[] = {
   { LANG_EN, "ORDER" },
   { LANG_FR, "ORDRE" },
 };
+const MultiLang e_level[] = {
+  { LANG_EN, "L" },
+  { LANG_FR, "N" },
+};
 
 // Slimes names
 const MultiLang n_plantslime[] = {

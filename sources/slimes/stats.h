@@ -25,4 +25,6 @@ class slime {
 extern slime_stat plantslime, fireslime, nodataslime;
 
 extern slime_stat* slimes[];
+
+uint8_t compute_hp(slime slime);
 #endif

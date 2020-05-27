@@ -15,3 +15,7 @@ slime_stat* slimes[] = { &plantslime, &fireslime, &fireslime, &fireslime, &fires
                          &fireslime, &fireslime, &fireslime, &fireslime, &fireslime,
                          &fireslime, &fireslime, &fireslime, &fireslime, &fireslime,
                          &nodataslime };
+
+uint8_t compute_hp(slime slime){
+  return ((2*slimes[slime.id]->base+(slime.hp_bonus/4))*slime.level)/100+slime.level+10;
+}
